@@ -1,0 +1,516 @@
+.ol-control button {
+	background-color: #4D5D3A !important;
+}
+
+/* General */
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  height: 100%;
+  width: 100%;
+  font-family: 'Lato', sans-serif;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: 16px;
+}
+
+input[type=text]::-ms-clear {
+  display: none;
+}
+
+.calcite a {
+  color: #007ac2;
+}
+
+.calcite a:visited {
+  color: #97cbec;
+}
+
+.calcite a:hover {
+  color: #555;
+}
+
+.calcite a:active {
+  color: #555;
+}
+/* General Misc */
+
+.toggle-grey {
+  color: white;
+}
+
+.toggle-grey:hover,
+.toggle-grey:active {
+  color: #A6C980;
+}
+
+.toggle-grey-on {
+  color: #4D5D3A;
+}
+
+.toggle-grey-on:hover,
+.toggle-grey-on:active {
+  color: #A6C980;
+}
+
+.button-container {
+  line-height: 44px;
+  height: 44px;
+  width: 44px;
+  text-align: center;
+  font-size: 22px;
+  *padding: 11px;
+  *width: auto;
+  *height: auto;
+  *line-height: 22px;
+}
+
+.icon-right {
+  float: right;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+}
+
+/* Panels */
+
+.panel-container img {
+  max-width: 100%;
+}
+
+.panel-title {
+  margin: 10px;
+  font-weight: 700;
+  font-size: 18px;
+  color: #291D0E;
+}
+
+.panel-padding {
+  padding: 0 20px 10px 10px;
+  color: #666;
+}
+
+.panel-header {
+  font-size: 18px;
+  font-weight: 700;
+  padding: 12px 20px 6px 10px;
+  line-height: 24px;
+  color: #291D0E;
+  background: #fff;
+  border-bottom: 2px solid black;
+}
+
+.panel-section {
+  border-top: 1px solid #e0e0e0;
+}
+
+.panel-more-info,
+.panel-modified-date,
+.panel-views-count,
+.panel-summary,
+.panel-description {
+  color: #666;
+  line-height: 24px;
+}
+
+.panel-modified-date,
+.panel-views-count,
+.panel-summary {
+  padding: 0 20px 5px 10px;
+}
+
+.panel-description,
+.panel-more-info {
+  padding: 0 20px 10px 10px;
+}
+
+.panel-modified-date {
+  font-size: 14px;
+  color: #999;
+}
+
+/* Drawer */
+
+.top-bar {
+  position: relative;
+  z-index: 36;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: #0D1506;
+  height: 44px;
+  border-bottom: 1px solid #ddd;
+}
+
+.top-menu-right {
+  margin-right: 5px;
+}
+
+.app-title {
+  color: white;
+  line-height: 44px;
+  font-size: 18px;
+  font-weight: 700;
+  max-width: 40%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  float: left;
+}
+
+.hamburger-button {
+  float: left;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  height: 44px;
+  width: 44px;
+  font-size: 28px;
+  line-height: 44px;
+  *padding: 8px;
+  *width: auto;
+  *height: auto;
+  *line-height: 28px;
+}
+
+.border-container-outer {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  overflow: hidden;
+}
+
+.content-pane-left {
+  width: 0px;
+  max-width: 280px;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  background: #fff;
+  overflow: hidden;
+  -webkit-transition: width 250ms ease;
+  -moz-transition: width 250ms ease;
+  -ms-transition: width 250ms ease;
+  -o-transition: width 250ms ease;
+  transition: width 250ms ease;
+  position: absolute;
+  height: 100%;
+  box-shadow: inset -1px 0 6px 0 rgba(0, 0, 0, 0.5);
+}
+
+.app-loading .content-pane-left {
+  width: 280px;
+}
+
+.drawer-open .content-pane-left {
+  width: 280px;
+  overflow: auto;
+  overflow-x: hidden;
+  border-right: 1px solid #ddd;
+}
+
+.drawer-open-complete .content-pane-left:before {
+  display: none;
+}
+
+/*.pointer-events .drawer-open-complete */
+.drawer-open .content-pane-left:before {
+  -webkit-box-shadow: inset -1px 0 6px 0 rgba(0, 0, 0, 0.5);
+  box-shadow: inset -1px 0 6px 0 rgba(0, 0, 0, 0.5);
+  position: fixed;
+  z-index: 450;
+  top: 0;
+  left: 0;
+  width: 280px;
+  height: 100%;
+  content: '';
+  display: block;
+  pointer-events: none;
+}
+
+.content-pane-center {
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+/* Map */
+
+.calcite .map {
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.BasemapToggle {
+  position: absolute;
+  top: 65px;
+  right: 20px;
+  z-index: 35;
+}
+
+.BasemapToggle .toggleButton {
+  border: 1px solid #999;
+  -webkit-border-radius: 1px;
+  -moz-border-radius: 1px;
+  -o-border-radius: 1px;
+  border-radius: 1px;
+}
+
+.BasemapToggle .basemapImage img {
+  -webkit-border-radius: 1px 1px 0 0;
+  -moz-border-radius: 1px 1px 0 0;
+  -o-border-radius: 1px 1px 0 0;
+  border-radius: 1px 1px 0 0;
+}
+
+.BasemapToggle .basemapTitle {
+  color: #666;
+}
+
+/* Drawer Menu */
+
+.drawer-menu-container {
+  width: 100%;
+}
+
+.drawer-menu-panels .panel {
+  display: none;
+  width: 98%;
+}
+
+.drawer-menu-panels .panel-selected {
+  display: block;
+  width: 98%;
+}
+
+.drawer-menu-buttons {
+  background-color: #4D5D3A; /*#007ac2;*/
+  font-size: 18px;
+  line-height: 18px;
+  text-align: center;
+  overflow: visible;
+  width: 100%;
+}
+
+.drawer-menu-1 .drawer-menu-buttons {
+  display: none;
+}
+
+.drawer-menu-buttons .item {
+  text-align: center;
+  color: #A6C980; /*#97cbec;*/
+  float: left;
+  cursor: pointer;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.drawer-menu-3 .drawer-menu-buttons .item {
+  width: 33.3%;
+}
+
+.drawer-menu-2 .drawer-menu-buttons .item {
+  width: 50%;
+}
+
+.drawer-menu-1 .drawer-menu-buttons .item {
+  width: 100%;
+}
+
+.drawer-menu-buttons .item-container {
+  position: relative;
+  overflow: visible;
+  padding: 7px 0;
+}
+
+.drawer-menu-buttons .item .title {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  padding: 2px 0;
+  font-size: 24px;
+  line-height: normal;
+  border-left: 1px solid #A6C980;
+}
+
+.drawer-menu-buttons .item-first .title {
+  border-left: 0;
+}
+
+.drawer-menu-buttons .item-selected {
+  color: #fff;
+  cursor: default;
+}
+
+.drawer-menu-buttons .arrow {
+  display: none;
+}
+
+.drawer-menu-buttons .item-selected .arrow {
+  display: block;
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  z-index: 2;
+  height: 9px;
+  width: 100%;
+  background: url(../images/selected-arrow.png) no-repeat center bottom;
+}
+
+.drawer-menu-buttons .icon-text {
+  font-size: 11px;
+  margin-bottom: 5px;
+  line-height: 11px;
+  height: 11px;
+  font-weight: 700;
+}
+
+/* Misc */
+
+.clear {
+  clear: both;
+  display: block;
+  overflow: hidden;
+  visibility: hidden;
+  width: 0;
+  height: 0;
+}
+
+/* Loading */
+
+.loading-indicator {
+  display: none;
+  height: 100%;
+  width: 100%;
+  z-index: 500;
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  background: #eee;
+  color: #666;
+}
+
+.loading-error {
+  display: none;
+  width: 100%;
+  height: 100px;
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  left: 0;
+  text-align: center;
+  margin: -50px 0 0 0;
+}
+
+.app-loading .loading-indicator {
+  display: block;
+  background-position: center center;
+  background-image: url(../images/loading.gif);
+  background-repeat: no-repeat;
+}
+
+.app-error .loading-indicator {
+  display: block;
+}
+
+.app-error .loading-error {
+  display: block;
+}
+
+.app-error .loading-error .icon-emo-unhappy {
+  font-size: 50px;
+  line-height: 50px;
+}
+
+.app-error .loading-error .error-message-text {
+  margin: 10px 0 0 0;
+}
+/* Media Queries */
+/* max width */
+
+
+@media screen and (max-width: 850px) {
+  .app-title {
+    max-width: 30%;
+  }
+  .app-loading .content-pane-left {
+    width: 0px !important; 
+  }
+ .content-pane-center {
+	left: 0px !important;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .app-title {
+    max-width: 30%;
+  }
+}
+
+@media only screen and (max-width: 510px) {
+  .app-title {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 575px) {
+	.app-title{
+		display: none!important;
+	}
+}
+
+@media screen and (max-width: 320px) {
+
+}
+
+@media screen and (max-width: 310px) {
+  .content-pane-left {
+    max-width: 280px;
+  }
+  .drawer-open .content-pane-left {
+    width: 280px;
+    overflow-x: auto;
+  }
+  .pointer-events .drawer-open-complete .content-pane-left:before {
+    width: 200px;
+  }
+  .drawer-menu-container {
+    width: 200px;
+  }
+}
+
+@media screen and (max-width: 800px) {
+  .drawer-open .app-title {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 930px) {
+
+}
+
+@media screen and (max-width: 580px) {
+  .drawer-open .top-menu-right{
+    display: none!important;
+  }
+}
+*/
+/* max height */
+/*
+@media screen and (max-height: 256px) {
+  .app-title {
+    display: none!important;
+  }
+}
+*/
