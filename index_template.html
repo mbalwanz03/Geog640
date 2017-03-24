@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Permits / Variances</title>
+		<meta charset="utf-8" />
+		<meta name="fragment" content="!">
+		<!--Define the versions of IE that will be used to render the page. See Microsoft documentation for details. Optional.-->
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<!-- Responsive -->
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		<meta name="mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="default">
+		<!-- End Responsive -->
+		<!-- Mobile -->
+		<link rel="apple-touch-icon" href="images/apple-touch-icon.png" />
+
+		<!--Use protocol relative urls that way if the browser is viewing the page via HTTPS the js/css file will be requested using the HTTPS protocol-->
+		<link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Lato:300,400,700" />
+		<script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+		<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
+		<script src="https://openlayers.org/en/v3.19.1/build/ol.js" type="text/javascript"></script>
+		<script src="js/ol3-popup.js" type="text/javascript"></script>
+		<script src="js/utils.js" type="text/javascript"></script>
+		
+		<!--Load any application specific styles-->
+		<link rel="stylesheet" type="text/css" href="css/main.css" />
+		<link rel="stylesheet" type="text/css" href="css/fontello.css" />
+		<link rel="stylesheet" type="text/css" href="css/ol3-popup.css" />
+		<link rel="stylesheet" type="text/css" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" />
+		<link rel="stylesheet" href="https://openlayers.org/en/v3.19.1/css/ol.css" type="text/css">
+		<style>
+			#mapDiv {
+				height: 100%;
+				width: 100%;
+				margin: 0;
+				padding: 0;
+				top: 0px;
+				position: absolute;
+			}
+			.ol-zoom {
+				position: absolute !important;
+				top: 60px !important;
+			}
+			.ol-zoom-extent {
+				position: absolute !important;
+				top: 120px !important;
+			}
+			
+			.visitsTableCell {
+				border-bottom: 1px solid #291D0E;
+			}
+			.visitsTableRow:hover {
+				background-color: #7a6b59;
+				color: white !important;
+			}
+			.ol-popup {
+				position: absolute;
+				background-color: white;
+				-webkit-filter: drop-shadow(0 1px 4px rgba(0,0,0,0.2));
+				filter: drop-shadow(0 1px 4px rgba(0,0,0,0.2));
+				padding: 15px;
+				border-radius: 10px;
+				border: 1px solid #cccccc;
+				bottom: 12px;
+				left: -50px;
+				min-width: 280px;
+				z-index: 99;
+			}
+			.ol-popup:after, .ol-popup:before {
+				top: 100%;
+				border: solid transparent;
+				content: " ";
+				height: 0;
+				width: 0;
+				position: absolute;
+				pointer-events: none;
+			}
+			.ol-popup:after {
+				border-top-color: white;
+				border-width: 10px;
+				left: 48px;
+				margin-left: -10px;
+			}
+			.ol-popup:before {
+				border-top-color: #cccccc;
+				border-width: 11px;
+				left: 48px;
+				margin-left: -11px;
+			}
+			.ol-popup-closer {
+				text-decoration: none;
+				position: absolute;
+				top: 2px;
+				right: 8px;
+			}
+			.ol-popup-closer:after {
+				content: "✖";
+			}
+		</style>
+		<script>
+			var map, permitLayer, pointLayer, popup, finalSearchArray;
+			
+			$( window ).resize(function() {
+				resizeCenterDiv();
+				setTimeout( function() { map.updateSize();}, 200);
+			});
+			
+			function init() {
+				resizeCenterDiv();
+				
+			/*	permitLayer = new ol.layer.Vector({
+					source: new ol.source.Vector({
+						loader: function (extent) {
+							$.ajax('http://localhost:8080/geoserver/Morrison/ows?', {
+								type: 'GET',
+								data: {
+									service: 'WFS',
+									version: '1.1.0',
+									request: 'GetFeature',
+									typename: 'Morrison:PERMIT_VARIANCE',
+									srsname: 'EPSG:3857',
+									outputFormat: 'text/javascript',
+									bbox: extent.join(',') + ',EPSG:3857'
+								},
+								dataType: 'jsonp',
+								jsonpCallback:'callback:loadFeatures',
+								jsonp: 'format_options'
+							})
+						},
+						strategy: ol.loadingstrategy.bbox,
+						projection: 'EPSG:3857'
+					})
+				});
+	
+				window.loadFeatures = function (response) {
+					permitLayer.getSource().addFeatures(new ol.format.GeoJSON().readFeatures(response));
+				};
+				
+				var pointStyle = new ol.style.Style({
+					image: new ol.style.Circle({
+						radius: 10,
+						fill: new ol.style.Fill({
+							color: 'rgb(47,85,151)',
+						}),
+						stroke: new ol.style.Stroke({
+							color: 'rgb(251,255,50)',
+							opacity: 0.7, 
+							width: 6
+						})
+					})
+				});
+					
+				pointLayer = new ol.layer.Vector({
+					source: new ol.source.Vector(),
+					style: pointStyle
+				});
+			
+				var backgroundSource = new ol.source.ImageWMS({	
+					url: 'http://localhost:8080/geoserver/Morrison/wms?service=WMS',
+					params: {'LAYERS': 'Morrison:Boundary',
+							'SRS': 'EPSG:3857'},
+					serverType: 'geoserver',
+				});
+
+				var backgroundLayer = new ol.layer.Image({
+					source: backgroundSource
+				});
+			*/	
+				var view = new ol.View({
+					center: ol.proj.fromLonLat([-94.3694, 45.9806]),
+					zoom: 10
+				});
+
+				var zoomToExtentControl = new ol.control.ZoomToExtent({
+					extent: [-10560359.718527207, 5741932.877468435, -10407485.661956856, 5833504.437354077]
+				});
+	  
+				map = new ol.Map({
+					target: 'mapDiv',
+					layers:  [
+						new ol.layer.Tile({
+							source: new ol.source.OSM()
+						})
+					//	backgroundLayer,
+					//	permitLayer,
+					//	pointLayer
+						
+					],
+					view: view
+				});
+				
+				// Create a popup overlay which will be used to display feature info
+			/*	popup = new ol.Overlay.Popup();
+				map.addOverlay(popup);
+
+				map.on("click", function(e) {
+					// Attempt to find a feature in one of the visible vector layers
+					var feature = map.forEachFeatureAtPixel(e.pixel, function(feature, layer) {
+						return feature;
+					});
+
+					if (feature) {
+						// Hide existing popup and reset it's offset
+						popup.hide();
+						popup.setOffset([0, 0]);
+					
+						var coord = feature.getGeometry().getCoordinates();
+						var props = feature.getProperties();
+						var info = "<h2>" + props.UID + "</h2>";
+							info += "<p>" + props.PARCELID + "</p>";
+							info += "<p>Conditions: " + props.CONDITIONS +"</p>";
+						// Offset the popup so it points at the middle of the marker not the tip
+						popup.setOffset([0, -5]);
+						popup.show(coord, info);
+						
+						getRelatedRecs(props.UID);
+						
+					}
+				});
+			*/	
+				map.addControl(zoomToExtentControl);
+
+				$( function() {
+					var dateFormat = "mm/dd/yy",
+					  from = $( "#fromDate" )
+						.datepicker({
+						  defaultDate: "+1w",
+						  changeMonth: true,
+						  numberOfMonths: 1
+						})
+						.on( "change", function() {
+						  to.datepicker( "option", "minDate", getDate( this ) );
+						}),
+					  to = $( "#toDate" ).datepicker({
+						defaultDate: "+1w",
+						changeMonth: true,
+						numberOfMonths: 1
+					  })
+					  .on( "change", function() {
+						from.datepicker( "option", "maxDate", getDate( this ) );
+					  });
+				 
+					function getDate( element ) {
+					  var date;
+					  try {
+						date = $.datepicker.parseDate( dateFormat, element.value );
+					  } catch( error ) {
+						date = null;
+					  }
+				 
+					  return date;
+					}
+				  } );
+  
+			}	
+		</script>
+	</head>
+	<body class="calcite app-loading" onload="init()">
+		<div id="bc_outer" class="border-container-outer">
+			<div id="cp_outer_left" class="drawer-open content-pane-left">
+				<div class="drawer-menu-container drawer-menu-3" id="drawer_menus">
+					<div class="drawer-menu-buttons">
+						<div id="visitsItem" class="item item-first item-selected" onclick="menuChange('legend')">
+							<div class="item-container" title="Legend">
+								<div class="title">
+									<div class="icon-calendar"></div>
+									<div class="icon-text">Upcoming Visits</div>
+								</div>
+								<div class="arrow"></div>
+							</div>
+						</div>
+						<div id="searchItem" class="item" onclick="menuChange('about')">
+							<div class="item-container" title="About">
+								<div class="title">
+									<div class="icon-binoculars"></div>
+									<div class="icon-text">Search</div>
+								</div>
+								<div class="arrow"></div>
+							</div>
+						</div>
+						<div id="layerItem" class="item" onclick="menuChange('layers')">
+							<div class="item-container" title="Layers">
+								<div class="title">
+									<div class="icon-layers"></div>
+									<div class="icon-text">Layers</div>
+								</div>
+								<div class="arrow"></div>
+							</div>
+						</div>
+						<div class="clear"></div>
+					</div>
+					<div class="drawer-menu-panels">
+						<div id="visitsPanel" class="panel panel-selected">
+							<div class="panel-header">Upcoming Field Visits</div>
+							<div class="panel-container" style="overflow-y: auto; padding: 10px; height:450px;"> <!-- SET HEIGHT BASED ON PAGE HEIGHT -->
+								<div id="visitsContainer">
+									<!-- CREATE TABLE AND RECORDS VIA JAVASCRIPT ON PAGE LOAD -->
+									<table style="width: 100%; border-collapse: collapse;">
+										<tbody>
+											<tr class="visitsTableRow">
+												<td class="visitsTableCell">
+													<span>CUP</span>
+												</td>
+												<td class="visitsTableCell">
+													<table>
+														<tbody>
+															<tr>
+																<td>
+																	<span>3/9/2017</span>
+																</td>
+															</tr>
+															<tr>
+																<td>
+																	<span>914-123-41847-5185</span>
+																</td>
+															</tr>
+															<tr>
+																<td>
+																	<span>Conditions...</span>
+																</td>
+															</tr>
+														</tbody>
+													</table>
+												</td>
+											</tr>
+											<tr class="visitsTableRow">
+												<td class="visitsTableCell">
+													<span>CUP</span>
+												</td>
+												<td class="visitsTableCell">
+													<table>
+														<tbody>
+															<tr>
+																<td>
+																	<span>3/9/2017</span>
+																</td>
+															</tr>
+															<tr>
+																<td>
+																	<span>914-123-41847-5185</span>
+																</td>
+															</tr>
+															<tr>
+																<td>
+																	<span>Conditions...</span>
+																</td>
+															</tr>
+														</tbody>
+													</table>
+												</td>
+											</tr>
+											<tr class="visitsTableRow">
+												<td class="visitsTableCell">
+													<span>CUP</span>
+												</td>
+												<td class="visitsTableCell">
+													<table>
+														<tbody>
+															<tr>
+																<td>
+																	<span>3/9/2017</span>
+																</td>
+															</tr>
+															<tr>
+																<td>
+																	<span>914-123-41847-5185</span>
+																</td>
+															</tr>
+															<tr>
+																<td>
+																	<span>Conditions...</span>
+																</td>
+															</tr>
+														</tbody>
+													</table>
+												</td>
+											</tr>
+											<tr class="visitsTableRow">
+												<td class="visitsTableCell">
+													<span>CUP</span>
+												</td>
+												<td class="visitsTableCell">
+													<table>
+														<tbody>
+															<tr>
+																<td>
+																	<span>3/9/2017</span>
+																</td>
+															</tr>
+															<tr>
+																<td>
+																	<span>914-123-41847-5185</span>
+																</td>
+															</tr>
+															<tr>
+																<td>
+																	<span>Conditions...</span>
+																</td>
+															</tr>
+														</tbody>
+													</table>
+												</td>
+											</tr>
+											<tr class="visitsTableRow">
+												<td class="visitsTableCell">
+													<span>CUP</span>
+												</td>
+												<td class="visitsTableCell">
+													<table>
+														<tbody>
+															<tr>
+																<td>
+																	<span>3/9/2017</span>
+																</td>
+															</tr>
+															<tr>
+																<td>
+																	<span>914-123-41847-5185</span>
+																</td>
+															</tr>
+															<tr>
+																<td>
+																	<span>Conditions...</span>
+																</td>
+															</tr>
+														</tbody>
+													</table>
+												</td>
+											</tr>
+											<tr class="visitsTableRow">
+												<td class="visitsTableCell">
+													<span>CUP</span>
+												</td>
+												<td class="visitsTableCell">
+													<table>
+														<tbody>
+															<tr>
+																<td>
+																	<span>3/9/2017</span>
+																</td>
+															</tr>
+															<tr>
+																<td>
+																	<span>914-123-41847-5185</span>
+																</td>
+															</tr>
+															<tr>
+																<td>
+																	<span>Conditions...</span>
+																</td>
+															</tr>
+														</tbody>
+													</table>
+												</td>
+											</tr>
+											<tr class="visitsTableRow">
+												<td class="visitsTableCell">
+													<span>CUP</span>
+												</td>
+												<td class="visitsTableCell">
+													<table>
+														<tbody>
+															<tr>
+																<td>
+																	<span>3/9/2017</span>
+																</td>
+															</tr>
+															<tr>
+																<td>
+																	<span>914-123-41847-5185</span>
+																</td>
+															</tr>
+															<tr>
+																<td>
+																	<span>Conditions...</span>
+																</td>
+															</tr>
+														</tbody>
+													</table>
+												</td>
+											</tr>
+											<tr class="visitsTableRow">
+												<td class="visitsTableCell">
+													<span>CUP</span>
+												</td>
+												<td class="visitsTableCell">
+													<table>
+														<tbody>
+															<tr>
+																<td>
+																	<span>3/9/2017</span>
+																</td>
+															</tr>
+															<tr>
+																<td>
+																	<span>914-123-41847-5185</span>
+																</td>
+															</tr>
+															<tr>
+																<td>
+																	<span>Conditions...</span>
+																</td>
+															</tr>
+														</tbody>
+													</table>
+												</td>
+											</tr>
+											<tr class="visitsTableRow">
+												<td class="visitsTableCell">
+													<span>CUP</span>
+												</td>
+												<td class="visitsTableCell">
+													<table>
+														<tbody>
+															<tr>
+																<td>
+																	<span>3/9/2017</span>
+																</td>
+															</tr>
+															<tr>
+																<td>
+																	<span>914-123-41847-5185</span>
+																</td>
+															</tr>
+															<tr>
+																<td>
+																	<span>Conditions...</span>
+																</td>
+															</tr>
+														</tbody>
+													</table>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>			
+							</div>
+						</div>
+						<div id="searchPanel" class="panel">
+							<div class="panel-header">Search Records</div>
+							<div class="panel-container" >
+								<div style="border-bottom: 2px solid #291D0E; padding: 10px;">
+									<label for="type">Type:</label>
+									<select id="recType" name="recType" style="margin-bottom: 5px;">
+										<option value='ALL'>ALL</option>
+										<option value='CUP'>CUP</option>
+										<option value='IUP'>IUP</option>
+										<option value='VAR'>VARIANCE</option>
+									</select><br/>
+									<label for="from">From:</label>
+									<input type="text" id="fromDate" name="fromDate" style="margin-bottom: 5px;"><br/>
+									<label for="to">To:</label>
+									<input type="text" id="toDate" name="toDate" style="margin-bottom: 5px;"><br/>
+									<button onclick='searchRecords()'>Search</button>
+									<button onclick='clearSearchResults()'>Clear</button>
+								</div>
+								<div id='resultsDiv'>
+								
+								</div>
+								<div>
+									<button id="btnExport" disabled style="bottom: 10px; left: 10px; position: absolute; width: 258px; height: 30px;" onClick="exportCSV()" >Export</button>
+								</div>
+							</div>
+						</div>
+						<div id="layerPanel" class="panel">
+							<div class="panel-header">Layers</div>
+							<div class="panel-container"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div id="cp_outer_center" class="content-pane-center" style="left:280px; position: absolute;">
+				<div class="top-bar" >
+					<div id="hamburger_button" class="hamburger-button toggle-grey-on" onclick="collapseDrawer();">
+						<div class="icon-menu"></div>
+					</div>
+					<img src="images/logo.png" style="margin-right: 6px; margin-top: 4px; float: left;"/>
+					<div id="title" class="app-title">Permit / Variance Viewer</div>
+				</div>
+		<!--	<div id="BasemapToggle"></div> -->
+				<div id="mapDiv" class="map"></div>
+				<!-- Popup -->
+				<div id="popup" class="ol-popup">
+					<a href="#" id="popup-closer" class="ol-popup-closer"></a>
+					<div id="popup-content"></div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
